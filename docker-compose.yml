@@ -1,0 +1,35 @@
+version: '3'
+services:
+  nginx:
+      image: nginx:latest
+      ports:
+        - 3000:80
+      volumes:
+        - ./config/nginx:/etc/nginx/conf.d
+        - ./static:/task-be/static
+      depends_on:
+        - web
+  web:
+    build: .
+    command: ["./start.sh"]
+    volumes:
+      - .:/task-be
+      - /var/log/task:/var/log/task
+    expose:
+      - 3000
+
+  redis:
+    image: redis:latest
+    command: redis-server
+
+  # celery:
+  #   build: .
+  #   image: celery
+  #   restart: "always"
+  #   volumes:
+  #     - .:/task-be
+  #     - /var/log/task:/var/log/task
+  #   depends_on:
+  #     - redis
+  #     - web
+  #   command: celery -A src.task worker --loglevel=info
